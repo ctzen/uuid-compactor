@@ -1,0 +1,236 @@
+group = 'com.ctzen'
+
+version = '1.0'
+
+apply plugin: 'java'
+
+ext {
+    // CANNOT be full path or eclipse plugin may misbehave!
+    srcDir = 'src'                          // main java source and resources
+    classesDir = 'build/classes'            // main java classes and resources
+    testSrcDir = 'src-test'                 // test java source and resources
+    testClassesDir = 'build/classes-test'   // test java classes and resources
+}
+
+tasks.withType(Compile) {
+    options.encoding = 'UTF-8'
+    options.deprecation = true
+    options.compilerArgs << '-Xlint:unchecked'
+}
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ["${srcDir}"]
+        }
+        resources {
+            srcDirs = ["${srcDir}"]                 // note: same as main java source
+        }
+        output.classesDir = "${classesDir}"
+        output.resourcesDir = "${classesDir}"       // note: same as main java classes
+    }
+    test {
+        java {
+            srcDirs = ["${testSrcDir}"]
+        }
+        resources {
+            srcDirs = ["${testSrcDir}"]             // note: same as test java source
+        }
+        output.classesDir = "${testClassesDir}"
+        output.resourcesDir = "${testClassesDir}"   // note: same as test java classes
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile 'commons-codec:commons-codec:1.8'
+}
+
+//==================================================
+// Use testng.
+//==================================================
+
+dependencies {
+    testCompile 'org.testng:testng:6.8.1'                   // use testng
+    testCompile 'org.easytesting:fest-assert-core:2.0M10'   // fluent assert
+    testRuntime('org.uncommons:reportng:1.1.2') {           // use reportng for nicer testng reports
+        exclude group: "org.testng", module: "testng"
+    }
+    testRuntime 'com.google.inject:guice:3.0'               // required by reportng
+}
+
+test {
+    useTestNG()     // use testng
+    options {
+        listeners << 'org.uncommons.reportng.HTMLReporter'      // use reportng
+        listeners << 'org.uncommons.reportng.JUnitXMLReporter'  // also produce junit xml reports for
+                                                                // downstream build step such as
+                                                                // jenkins' unit test report
+    }
+}
+
+//==================================================
+// Build sources jar.
+//==================================================
+
+task sourcesJar(type: Jar, dependsOn:classes) {
+    classifier = 'sources'
+    from sourceSets.main.java
+}
+
+artifacts {
+    archives sourcesJar     // add sources jar as artifact
+}
+
+//==================================================
+// Setup eclipse.
+//==================================================
+
+apply plugin: 'eclipse'
+
+eclipse {
+    classpath {
+        downloadSources=true                                    // good for debugging
+        // setup separate output classes folders.
+        defaultOutputDir = file("${classesDir}")
+        file {
+            whenMerged { cp ->
+                cp.entries.findAll {
+                    it.kind == 'src' && it.path == "${testSrcDir}"
+                }*.output = "${testClassesDir}"
+            }
+        }
+    }
+}
+
+//==================================================
+// Setup jacoco.
+//==================================================
+
+ext {
+    jacocoReportDir = "${reporting.baseDir}/jacoco"
+    jacocoCoverageFileName = 'jacoco.exec'
+    jacocoItCoverageFileName = 'jacocoIt.exec'
+}
+
+import groovy.lang.Closure;
+
+configurations {
+    jacoco
+}
+
+dependencies {
+    jacoco 'org.jacoco:org.jacoco.agent:0.6.2.201302030002'
+    jacoco 'org.jacoco:org.jacoco.ant:0.6.2.201302030002'
+}
+
+def jacocoConvention = new JacocoPluginConvention(project)
+project.convention.plugins.jacoco = jacocoConvention
+
+class JacocoPluginConvention {
+    def reportPath
+    def coverageFileName
+    def tmpDir
+    def includes
+    def excludes
+    def exclclassloader
+    def append
+    def sessionid
+    def dumponexit
+    def output
+    def address
+    def port
+    def iTcoverageFileName
+
+    def jacoco(Closure close) {
+        close.delegate = this
+        close.run()
+    }
+
+    JacocoPluginConvention(Project project) {
+        reportPath = "${project.jacocoReportDir}"
+        tmpDir = "${project.jacocoReportDir}"
+        coverageFileName = "${tmpDir}/${project.jacocoCoverageFileName}"
+        iTcoverageFileName = "${tmpDir}/${project.jacocoItCoverageFileName}"
+        includes = []
+        excludes = []
+        exclclassloader = []
+        sessionid = null
+        append = false
+        dumponexit = true
+        output = "file"
+        address = null
+        port = null
+    }
+
+    def getParams() {
+        def params = [:]
+        params["property"] = "agentvmparam"
+        if (System.properties['test.single']=='*IT') {
+            params["destfile"] = iTcoverageFileName
+        }
+        else {
+            params["destfile"] = coverageFileName
+        }
+        if (includes != null && includes.size() > 0) {
+            params["includes"] = includes.join(":")
+        }
+        if (excludes != null && excludes.size() > 0) {
+            params["excludes"] = excludes.join(":")
+        }
+        if (exclclassloader != null && exclclassloader.size > 0) {
+            params["exclclassloader"] = exclclassloader
+        }
+        if (sessionid != null) {
+            params["sessionid"] = sessionid
+        }
+        params["append"] = append
+        params["dumponexit"] = dumponexit
+        params["output"] = output
+        if (address != null) {
+            params["address"] = address
+        }
+        if (port != null) {
+            params["port"] = port
+        }
+        return params
+    }
+}
+
+test {
+    //testLogging.showStandardStreams = true
+    doFirst {
+        ant.taskdef(name:'jacocoagent', classname: 'org.jacoco.ant.AgentTask', classpath: configurations.jacoco.asPath)
+        ant.jacocoagent(jacocoConvention.getParams())
+        jvmArgs "${ant.properties.agentvmparam}"
+    }
+    doLast {
+        if (!new File(jacocoConvention.coverageFileName).exists()) {
+            logger.info("Skipping Jacoco report for ${project.name}. The data file is missing. (Maybe no tests ran in this module?)")
+            logger.info("The data file was expected at ${jacocoConvention.coverageFileName}")
+            return
+        }
+        ant.taskdef(name:'jacocoreport', classname: 'org.jacoco.ant.ReportTask', classpath: configurations.jacoco.asPath)
+        ant.mkdir dir: "${jacocoConvention.reportPath}"
+        ant.jacocoreport {
+            executiondata {
+                ant.file file: "${jacocoConvention.coverageFileName}"
+            }
+            structure(name: project.name) {
+                classfiles {
+                    fileset dir: "${sourceSets.main.output.classesDir}"
+                }
+                sourcefiles {
+                    sourceSets.main.java.srcDirs.each {
+                        fileset(dir: it.absolutePath)
+                    }
+                }
+            }
+            xml destfile: "${jacocoConvention.reportPath}/jacoco.xml"
+            html destdir: "${jacocoConvention.reportPath}"
+        }
+    }
+}

@@ -1,0 +1,6 @@
+.*
+!.gitignore
+*.tmp
+*.log
+*.jpage
+/build
