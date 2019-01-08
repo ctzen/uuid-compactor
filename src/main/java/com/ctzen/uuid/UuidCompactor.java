@@ -12,7 +12,7 @@ import java.util.UUID;
  * UUID strings are 36 characters, e.g. {@code be177dbe-5639-4ee1-90b1-09e108ffdddc}.
  * </p>
  * <p>
- * {@code compact64()} and {@code compact32()} compact UUIDs down to strings of 22 and 26 characters respectively. <br />
+ * {@code compact64()} and {@code compact32()} compact UUIDs down to strings of 22 and 26 characters respectively. <br>
  * The compacted strings are URL-safe.
  * </p>
  * <p>
@@ -20,7 +20,7 @@ import java.util.UUID;
  * </p>
  * <p>
  * {@code compact32()} produces a longer string but the character set used is unambiguous, only upper-case alphabets, and no
- * '0','1','8' to confuse with 'O','I','B'.<br />
+ * '0','1','8' to confuse with 'O','I','B'.<br>
  * Base32 character set: {@code A B C D E F G H I J K L M N O P Q R S T U V W X Y Z 2 3 4 5 6 7}
  * </p>
  * <p>
