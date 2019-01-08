@@ -17,15 +17,19 @@ no `0`, `1`, `8` to confuse with `O`, `I`, `l`, `B`.
 
 ## Usage
 
-    // Create compactor, or inject as singleton, it is thread-safe.
-    static final UuidCompactor compactor = new UuidCompactor();
-    UUID uuid = UUID.randomUUID();
-    // compact
-    String compactUuid = compactor.compact64(uuid);
-    // expand
-    UUID uuid2 = compactor.expand64(compactUuid);
-    assert uuid2.equals(uuid);
+```java
+// Create compactor, or inject as singleton, it is thread-safe.
+static final UuidCompactor compactor = new UuidCompactor();
+UUID uuid = UUID.randomUUID();
+// compact
+String compactUuid = compactor.compact64(uuid);
+// expand
+UUID uuid2 = compactor.expand64(compactUuid);
+assert uuid2.equals(uuid);
+```
 
 ## build
 
-    gradlew build javadoc
+```bash
+$ ./gradlew build 
+```

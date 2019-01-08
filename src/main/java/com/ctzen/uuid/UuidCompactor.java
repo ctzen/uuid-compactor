@@ -1,10 +1,10 @@
 package com.ctzen.uuid;
 
-import java.util.UUID;
-
 import org.apache.commons.codec.binary.Base32;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.BaseNCodec;
+
+import java.util.UUID;
 
 /**
  * Converts UUID to URL-safe compact string, and vice versa.
@@ -27,7 +27,7 @@ import org.apache.commons.codec.binary.BaseNCodec;
  * This class is thread safe.
  * </p>
  *
- * @author cschang
+ * @author cchang
  */
 public class UuidCompactor {
 

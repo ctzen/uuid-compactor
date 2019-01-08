@@ -1,17 +1,17 @@
 package com.ctzen.uuid;
 
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
 import java.util.Arrays;
 import java.util.UUID;
 
-import static org.fest.assertions.api.Assertions.assertThat;
-
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * UuidCompactor unit tests.
  *
- * @author cschang
+ * @author cchang
  */
 public class UuidCompactorTests {
 
@@ -93,7 +93,7 @@ public class UuidCompactorTests {
     // NOT in Base32 and Base64 alphabets.
     private static final char BAD_CHAR = '%';
 
-    @DataProvider(name = "expand64BadCharData")
+    @DataProvider(name = "expandBadCharData")
     public Object[][] expandBadCharData() {
         return new Object[][] {
             { repeat('A', UuidCompactor.COMPACT64_LEN - 1) + BAD_CHAR },

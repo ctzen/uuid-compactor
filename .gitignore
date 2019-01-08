@@ -1,6 +1,10 @@
+# the usual suspects...
 .*
+# except these...
 !.gitignore
-*.tmp
-*.log
-*.jpage
-/build
+!.gitattributes
+!.java-version
+
+# derived artifacts...
+/**/build/
+/**/out/
