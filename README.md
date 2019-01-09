@@ -17,6 +17,15 @@ no `0`, `1`, `8` to confuse with `O`, `I`, `l`, `B`.
 
 ## Usage
 
+```kotlin
+repositories {
+    jcenter()
+}
+dependencies {
+    implementation("com.ctzen.util:uuid-compactor:<version>")
+}
+```
+
 ```java
 // Create compactor, or inject as singleton, it is thread-safe.
 static final UuidCompactor compactor = new UuidCompactor();
