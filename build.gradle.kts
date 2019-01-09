@@ -15,7 +15,7 @@ plugins {
 val snapshot = false
 
 group = "com.ctzen.util"
-version = "1.0.1" + (if (snapshot) "-SNAPSHOT" else "")
+version = "1.0.2" + (if (snapshot) "-SNAPSHOT" else "")
 description = "UUID Compactor"
 
 fun gitRev(): String {
