@@ -1,10 +1,4 @@
-## v1.0.3 / YYYY-MM-DD
-- Documentation
-
-## v1.0.2 / 2019-01-08
-- Missed ReportNG CSS file
-
-## v1.0.1 / 2019-01-08
+## v1.1.0 / 2019-01-10
 - Modernize
 
 ## v1.0 / 2013-05-07

@@ -12,10 +12,10 @@ plugins {
     id("com.jfrog.artifactory") version "4.9.0"     // snapshots
 }
 
-val snapshot = true
+val snapshot = false
 
 group = "com.ctzen.util"
-version = "1.0.3" + (if (snapshot) "-SNAPSHOT" else "")
+version = "1.1.0" + (if (snapshot) "-SNAPSHOT" else "")
 description = "UUID Compactor"
 
 fun gitRev(): String {
